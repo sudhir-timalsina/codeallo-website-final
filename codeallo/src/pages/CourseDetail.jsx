@@ -1,9 +1,10 @@
 import { useParams } from 'react-router-dom'
-import { Clock, BarChart3, Laptop, CheckCircle2 } from 'lucide-react'
+import { Clock, BarChart3, Laptop, CheckCircle2, Award } from 'lucide-react'
 import Seo from '../components/Seo.jsx'
 import PageHero from '../components/sections/PageHero.jsx'
 import Breadcrumbs from '../components/ui/Breadcrumbs.jsx'
 import Badge from '../components/ui/Badge.jsx'
+import Button from '../components/ui/Button.jsx'
 import InterestForm from '../components/sections/InterestForm.jsx'
 import NotFound from './NotFound.jsx'
 import { getCourseBySlug } from '../data/courses.js'
@@ -25,6 +26,7 @@ export default function CourseDetail() {
       name: 'Codeallo Education and Technologies Pvt. Ltd.',
       sameAs: siteConfig.url,
     },
+    ...(course.isFree ? { isAccessibleForFree: true } : {}),
   }
 
   return (
@@ -54,7 +56,23 @@ export default function CourseDetail() {
             ))}
           </ul>
 
-          {course.status === 'upcoming' && (
+          {course.isFree && (
+            <div className="mt-10 border border-ink bg-bone/50 p-5">
+              <p className="flex items-center gap-2 text-sm font-medium text-ink">
+                <Award size={16} /> Free online certification available
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-graphite">
+                This course is completely free and open to everyone — no
+                enrollment required. Read the lessons at your own pace, pass
+                the short quiz at the end, and you&rsquo;ll automatically
+                receive a Codeallo certificate with your name on it. You
+                only need an account to take the quiz and get your
+                certificate — the lessons themselves are open to anyone.
+              </p>
+            </div>
+          )}
+
+          {!course.isFree && course.status === 'upcoming' && (
             <div className="mt-10 border border-line bg-bone/50 p-5">
               <p className="text-sm leading-relaxed text-graphite">
                 This course doesn&rsquo;t have a running batch yet. We&rsquo;re forming the first
@@ -67,7 +85,12 @@ export default function CourseDetail() {
 
         <aside className="flex flex-col gap-6 lg:col-span-4 lg:col-start-9">
           <div className="border border-line p-6">
-            <Badge tone="dark">{course.status === 'upcoming' ? 'Registering interest' : 'Enrolling'}</Badge>
+            <div className="flex flex-wrap gap-2">
+              <Badge tone="dark">
+                {course.isFree ? 'Free' : course.status === 'upcoming' ? 'Registering interest' : 'Enrolling'}
+              </Badge>
+              {course.hasCertificate && <Badge tone="dark">Certificate included</Badge>}
+            </div>
             <dl className="mt-5 space-y-4 text-sm">
               <div className="flex items-center gap-2.5">
                 <BarChart3 size={16} className="text-ash" />
@@ -87,7 +110,13 @@ export default function CourseDetail() {
             </dl>
           </div>
 
-          <InterestForm serviceLabel={`Course: ${course.title}`} submitLabel="Register Interest" />
+          {course.isFree ? (
+            <Button to={`/learn/${course.learnSlug}`} icon className="w-full justify-center">
+              Start Learning Free
+            </Button>
+          ) : (
+            <InterestForm serviceLabel={`Course: ${course.title}`} submitLabel="Register Interest" />
+          )}
         </aside>
       </section>
     </>
