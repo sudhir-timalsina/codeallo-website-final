@@ -5,6 +5,7 @@ import FormField from '../../components/ui/FormField.jsx'
 import Button from '../../components/ui/Button.jsx'
 import Logo from '../../components/layout/Logo.jsx'
 import { useAuth } from '../../hooks/useAuth.jsx'
+import { supabase } from '../../lib/supabaseClient.js'
 
 export default function Login() {
   const { signIn } = useAuth()
@@ -14,19 +15,36 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const from = location.state?.from?.pathname || '/dashboard'
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const { error } = await signIn(form.email, form.password)
-    setLoading(false)
+
+    const { data, error } = await signIn(form.email, form.password)
+
     if (error) {
+      setLoading(false)
       setError(error.message)
       return
     }
-    navigate(from, { replace: true })
+
+    // Look up the role directly rather than relying on AuthProvider's
+    // profile state, which updates asynchronously via onAuthStateChange
+    // and may not have landed yet on this same render.
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', data.user.id)
+      .single()
+
+    setLoading(false)
+
+    // If the person was redirected here from a specific protected page,
+    // honor that. Otherwise send admins to /admin and everyone else to
+    // /dashboard.
+    const requestedFrom = location.state?.from?.pathname
+    const destination = requestedFrom || (profile?.role === 'admin' ? '/admin' : '/dashboard')
+    navigate(destination, { replace: true })
   }
 
   return (
