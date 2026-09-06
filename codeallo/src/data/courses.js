@@ -6,6 +6,7 @@
 // in Supabase (see supabase/schema.sql) once the CMS is in active use.
 
 export const courseCategories = [
+  'Free & Certified',
   'Programming',
   'Web Development',
   'Artificial Intelligence',
@@ -191,6 +192,78 @@ export const courses = [
       'Send device data over a network to a server',
       'Build a basic dashboard to visualize live device data',
       'Understand the building blocks of a real IoT system',
+    ],
+  },
+
+  // ---------------------------------------------------------------------
+  // FREE, SELF-PACED COURSES
+  // ---------------------------------------------------------------------
+  // Unlike the paid/upcoming courses above, these are live right now,
+  // free, fully public (no login needed to read the lessons), and end in
+  // an automatically-issued certificate. Full lesson + quiz content lives
+  // in src/data/learnCourses.js — `learnSlug` below links a catalog card
+  // to its actual lesson reader at /learn/:learnSlug.
+  {
+    slug: 'free-introduction-to-ai',
+    learnSlug: 'introduction-to-ai',
+    title: 'Introduction to Artificial Intelligence',
+    category: 'Free & Certified',
+    level: 'Beginner',
+    duration: '1 hour',
+    delivery: 'Free, self-paced, online',
+    status: 'open',
+    isFree: true,
+    hasCertificate: true,
+    short: 'A free, jargon-free introduction to what AI actually is — read now, no account needed.',
+    description:
+      'A grounded, jargon-free introduction to what AI actually is, how it developed, and where it shows up in everyday life. Five short lessons plus a quiz, free and self-paced. Pass the quiz to receive an automatically-issued Codeallo certificate.',
+    outcomes: [
+      'Explain what AI is (and isn\u2019t) without relying on hype or jargon',
+      'Understand the real difference between narrow AI and general intelligence',
+      'Recognize where AI already shows up in everyday life',
+      'Understand the practical limits and risks of AI systems',
+    ],
+  },
+  {
+    slug: 'free-machine-learning-basics',
+    learnSlug: 'machine-learning-basics',
+    title: 'Machine Learning Basics',
+    category: 'Free & Certified',
+    level: 'Beginner',
+    duration: '1 hour',
+    delivery: 'Free, self-paced, online',
+    status: 'open',
+    isFree: true,
+    hasCertificate: true,
+    short: 'How machines actually "learn" from data — free, self-paced, with a certificate on completion.',
+    description:
+      'The core ideas behind supervised and unsupervised learning, explained without heavy math. Five short lessons plus a quiz, free and self-paced. Pass the quiz to receive an automatically-issued Codeallo certificate.',
+    outcomes: [
+      'Explain the difference between traditional programming and machine learning',
+      'Distinguish supervised from unsupervised learning',
+      'Understand why training data quality matters more than algorithm choice',
+      'Know what to ask before trusting a model\u2019s accuracy claim',
+    ],
+  },
+  {
+    slug: 'free-practical-ai-and-prompting',
+    learnSlug: 'practical-ai-and-prompting',
+    title: 'Practical AI & Prompting Skills',
+    category: 'Free & Certified',
+    level: 'Beginner',
+    duration: '1 hour',
+    delivery: 'Free, self-paced, online',
+    status: 'open',
+    isFree: true,
+    hasCertificate: true,
+    short: 'How to actually use AI tools well and responsibly — free, self-paced, with a certificate on completion.',
+    description:
+      'How large language models work at a practical level, how to write effective prompts, and how to use AI tools responsibly and skeptically. Five short lessons plus a quiz, free and self-paced. Pass the quiz to receive an automatically-issued Codeallo certificate.',
+    outcomes: [
+      'Understand what a large language model is actually doing when it responds',
+      'Write clear, specific prompts that get better results',
+      'Use AI tools responsibly, with an awareness of privacy and bias',
+      'Know when and how to fact-check AI-generated output',
     ],
   },
 ]
