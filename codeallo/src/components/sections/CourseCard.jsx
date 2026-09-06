@@ -1,17 +1,27 @@
 import { Link } from 'react-router-dom'
-import { Clock, BarChart3, Laptop } from 'lucide-react'
+import { Clock, BarChart3, Laptop, Award } from 'lucide-react'
 import Badge from '../ui/Badge.jsx'
 
 export default function CourseCard({ course }) {
   return (
     <Link
       to={`/courses/${course.slug}`}
-      className="group flex flex-col justify-between border border-line p-6 transition-colors hover:border-ink"
+      className={`group flex flex-col justify-between border p-6 transition-colors hover:border-ink ${
+        course.isFree ? 'border-ink' : 'border-line'
+      }`}
     >
       <div>
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <Badge>{course.category}</Badge>
-          {course.status === 'upcoming' && <Badge tone="dark">Registering interest</Badge>}
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <Badge tone={course.isFree ? 'dark' : 'default'}>{course.category}</Badge>
+          {course.isFree && <Badge tone="dark">Free</Badge>}
+          {course.hasCertificate && (
+            <Badge tone="dark" className="flex items-center gap-1">
+              <Award size={12} /> Certificate included
+            </Badge>
+          )}
+          {!course.isFree && course.status === 'upcoming' && (
+            <Badge>Registering interest</Badge>
+          )}
         </div>
         <h3 className="font-display text-xl text-ink">{course.title}</h3>
         <p className="mt-2 text-sm leading-relaxed text-graphite">{course.short}</p>
