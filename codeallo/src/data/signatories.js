@@ -10,22 +10,22 @@
 export const signatories = [
   {
     name: 'Sudhir Timalsina',
-    title: 'Founder, Codeallo', // TODO confirm exact title
+    title: 'CEO, Codeallo', // TODO confirm exact title
     signatureFont: "'Mrs Saint Delafield', cursive",
   },
   {
     name: 'Utkrista Adhikari',
-    title: '', // TODO: add title
+    title: 'CAO, Codeallo', // TODO: add title
     signatureFont: "'Dancing Script', cursive",
   },
   {
     name: 'Sampanna Thapa',
-    title: '', // TODO: add title
+    title: 'CTO, Codeallo', // TODO: add title
     signatureFont: "'Sacramento', cursive",
   },
   {
     name: 'Hrithik Bhattarai',
-    title: '', // TODO: add title
+    title: 'Program Director, Codeallo', // TODO: add title
     signatureFont: "'Petit Formal Script', cursive",
   },
 ]
