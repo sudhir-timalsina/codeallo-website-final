@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Clock, BarChart3, Laptop, Award } from 'lucide-react'
+import { Clock, BarChart3, Laptop, Award, Tag } from 'lucide-react'
 import Badge from '../ui/Badge.jsx'
 
 export default function CourseCard({ course }) {
@@ -27,23 +27,29 @@ export default function CourseCard({ course }) {
         <p className="mt-2 text-sm leading-relaxed text-graphite">{course.short}</p>
       </div>
 
-      <dl className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-line pt-4 text-xs text-ash">
-        <div className="flex items-center gap-1.5">
-          <BarChart3 size={13} />
-          <dt className="sr-only">Level</dt>
-          <dd>{course.level}</dd>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Clock size={13} />
-          <dt className="sr-only">Duration</dt>
-          <dd>{course.duration}</dd>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Laptop size={13} />
-          <dt className="sr-only">Delivery</dt>
-          <dd>{course.delivery}</dd>
-        </div>
-      </dl>
+      <div className="mt-6 border-t border-line pt-4">
+        <p className="flex items-center gap-1.5 text-sm font-medium text-ink">
+          <Tag size={13} className="text-ash" />
+          {course.price}
+        </p>
+        <dl className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-ash">
+          <div className="flex items-center gap-1.5">
+            <BarChart3 size={13} />
+            <dt className="sr-only">Level</dt>
+            <dd>{course.level}</dd>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Clock size={13} />
+            <dt className="sr-only">Duration</dt>
+            <dd>{course.duration}</dd>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Laptop size={13} />
+            <dt className="sr-only">Delivery</dt>
+            <dd>{course.delivery}</dd>
+          </div>
+        </dl>
+      </div>
     </Link>
   )
 }
