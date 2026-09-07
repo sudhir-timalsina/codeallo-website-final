@@ -7,6 +7,7 @@ import LoadingState from '../components/ui/LoadingState.jsx'
 import EmptyState from '../components/ui/EmptyState.jsx'
 import { useAuth } from '../hooks/useAuth.jsx'
 import { supabase } from '../lib/supabaseClient.js'
+import { getCourseBySlug } from '../data/courses.js'
 
 export default function Dashboard() {
   const { user, profile, signOut } = useAuth()
@@ -20,7 +21,7 @@ export default function Dashboard() {
       const [enrollmentsRes, certificatesRes] = await Promise.all([
         supabase
           .from('enrollments')
-          .select('id, status, created_at, courses(title, slug)')
+          .select('id, status, created_at, course_slug')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false }),
         supabase
@@ -106,7 +107,7 @@ export default function Dashboard() {
                   <ul className="divide-y divide-line border-t border-line">
                     {enrollments.map((e) => (
                       <li key={e.id} className="flex items-center justify-between gap-4 py-4">
-                        <span className="text-graphite">{e.courses?.title || 'Course'}</span>
+                        <span className="text-graphite">{getCourseBySlug(e.course_slug)?.title || e.course_slug}</span>
                         <span className="text-xs uppercase tracking-wide text-ash">{e.status}</span>
                       </li>
                     ))}
