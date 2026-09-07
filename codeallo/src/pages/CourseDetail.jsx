@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom'
-import { Clock, BarChart3, Laptop, CheckCircle2, Award } from 'lucide-react'
+import { Clock, BarChart3, Laptop, CheckCircle2, Award, Tag } from 'lucide-react'
 import Seo from '../components/Seo.jsx'
 import PageHero from '../components/sections/PageHero.jsx'
 import Breadcrumbs from '../components/ui/Breadcrumbs.jsx'
@@ -92,6 +92,11 @@ export default function CourseDetail() {
               {course.hasCertificate && <Badge tone="dark">Certificate included</Badge>}
             </div>
             <dl className="mt-5 space-y-4 text-sm">
+              <div className="flex items-center gap-2.5">
+                <Tag size={16} className="text-ash" />
+                <dt className="sr-only">Price</dt>
+                <dd className="font-medium text-ink">{course.price}</dd>
+              </div>
               <div className="flex items-center gap-2.5">
                 <BarChart3 size={16} className="text-ash" />
                 <dt className="sr-only">Level</dt>
