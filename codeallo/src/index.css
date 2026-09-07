@@ -95,3 +95,19 @@
     text-wrap: balance;
   }
 }
+
+@media print {
+  header,
+  footer {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+  }
+
+  .certificate-print-area {
+    border-width: 2px !important;
+    box-shadow: none !important;
+  }
+}
