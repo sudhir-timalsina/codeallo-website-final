@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Award } from 'lucide-react'
 import Seo from '../components/Seo.jsx'
 import Button from '../components/ui/Button.jsx'
 import LoadingState from '../components/ui/LoadingState.jsx'
@@ -9,20 +11,34 @@ import { supabase } from '../lib/supabaseClient.js'
 export default function Dashboard() {
   const { user, profile, signOut } = useAuth()
   const [enrollments, setEnrollments] = useState([])
+  const [certificates, setCertificates] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let mounted = true
-    async function loadEnrollments() {
-      const { data, error } = await supabase
-        .from('enrollments')
-        .select('id, status, created_at, courses(title, slug)')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-      if (mounted && !error) setEnrollments(data || [])
-      if (mounted) setLoading(false)
+    async function loadData() {
+      const [enrollmentsRes, certificatesRes] = await Promise.all([
+        supabase
+          .from('enrollments')
+          .select('id, status, created_at, courses(title, slug)')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('certificates')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('issued_at', { ascending: false }),
+      ])
+      if (mounted) {
+        setEnrollments(enrollmentsRes.data || [])
+        setCertificates(certificatesRes.data || [])
+        setLoading(false)
+      }
     }
-    if (user) loadEnrollments()
+    if (user) loadData()
+    return () => {
+      mounted = false
+    }
   }, [user])
 
   return (
@@ -42,27 +58,61 @@ export default function Dashboard() {
         </div>
 
         <div className="mt-12 grid gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-8">
-            <h2 className="font-display text-xl text-ink">Your courses</h2>
-            <div className="mt-5">
-              {loading ? (
-                <LoadingState label="Loading your courses" />
-              ) : enrollments.length === 0 ? (
-                <EmptyState
-                  title="No enrollments yet"
-                  description="Once you register interest in a course, it will show up here."
-                  action={<Button to="/courses" variant="secondary" size="sm">Browse Courses</Button>}
-                />
-              ) : (
-                <ul className="divide-y divide-line border-t border-line">
-                  {enrollments.map((e) => (
-                    <li key={e.id} className="flex items-center justify-between gap-4 py-4">
-                      <span className="text-graphite">{e.courses?.title || 'Course'}</span>
-                      <span className="text-xs uppercase tracking-wide text-ash">{e.status}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+          <div className="space-y-12 lg:col-span-8">
+            <div>
+              <h2 className="font-display text-xl text-ink">Your certificates</h2>
+              <div className="mt-5">
+                {loading ? (
+                  <LoadingState label="Loading your certificates" />
+                ) : certificates.length === 0 ? (
+                  <EmptyState
+                    title="No certificates yet"
+                    description="Pass a free course quiz to earn your first Codeallo certificate."
+                    action={<Button to="/courses" variant="secondary" size="sm">Browse Free Courses</Button>}
+                  />
+                ) : (
+                  <ul className="divide-y divide-line border-t border-line">
+                    {certificates.map((cert) => (
+                      <li key={cert.id} className="flex items-center justify-between gap-4 py-4">
+                        <span className="flex items-center gap-2 text-graphite">
+                          <Award size={15} className="text-ash" />
+                          {cert.course_title}
+                        </span>
+                        <Link
+                          to={`/certificate/${cert.id}`}
+                          className="text-sm text-ink underline underline-offset-4"
+                        >
+                          View / Print
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <h2 className="font-display text-xl text-ink">Your course enrollments</h2>
+              <div className="mt-5">
+                {loading ? (
+                  <LoadingState label="Loading your courses" />
+                ) : enrollments.length === 0 ? (
+                  <EmptyState
+                    title="No enrollments yet"
+                    description="Once you register interest in a paid or upcoming course, it will show up here."
+                    action={<Button to="/courses" variant="secondary" size="sm">Browse Courses</Button>}
+                  />
+                ) : (
+                  <ul className="divide-y divide-line border-t border-line">
+                    {enrollments.map((e) => (
+                      <li key={e.id} className="flex items-center justify-between gap-4 py-4">
+                        <span className="text-graphite">{e.courses?.title || 'Course'}</span>
+                        <span className="text-xs uppercase tracking-wide text-ash">{e.status}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           </div>
 
