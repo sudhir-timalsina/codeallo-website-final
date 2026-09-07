@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react'
+import { Trash2, UserPlus } from 'lucide-react'
 import { supabase } from '../../lib/supabaseClient.js'
 import LoadingState from '../../components/ui/LoadingState.jsx'
 import EmptyState from '../../components/ui/EmptyState.jsx'
+import EnrollModal from '../../components/admin/EnrollModal.jsx'
 
 const statuses = ['new', 'in_progress', 'closed']
 
 export default function AdminLeads() {
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
+  const [enrollingLead, setEnrollingLead] = useState(null)
 
   const load = async () => {
     setLoading(true)
@@ -28,10 +31,20 @@ export default function AdminLeads() {
     await supabase.from('contact_submissions').update({ status }).eq('id', id)
   }
 
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this submission? This cannot be undone.')) return
+    setLeads((prev) => prev.filter((l) => l.id !== id))
+    await supabase.from('contact_submissions').delete().eq('id', id)
+  }
+
   return (
     <div>
       <h1 className="font-display text-2xl text-ink">Contact Leads</h1>
-      <p className="mt-1 text-sm text-graphite">Submissions from the contact form and course/service interest forms.</p>
+      <p className="mt-1 text-sm text-graphite">
+        Submissions from the contact form and course/service interest forms.
+        Use &ldquo;Enroll&rdquo; to confirm a course enrollment directly from a lead
+        (the person must already have a registered account).
+      </p>
 
       <div className="mt-6 border border-line bg-paper">
         {loading ? (
@@ -50,6 +63,7 @@ export default function AdminLeads() {
                   <th className="px-4 py-3 font-medium">Service</th>
                   <th className="px-4 py-3 font-medium">Message</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 text-right font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -74,6 +88,21 @@ export default function AdminLeads() {
                         ))}
                       </select>
                     </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-3">
+                        <button
+                          onClick={() => setEnrollingLead(lead)}
+                          aria-label="Enroll this person"
+                          className="text-graphite hover:text-ink"
+                          title="Enroll in a course"
+                        >
+                          <UserPlus size={15} />
+                        </button>
+                        <button onClick={() => handleDelete(lead.id)} aria-label="Delete" className="text-graphite hover:text-error">
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -81,6 +110,13 @@ export default function AdminLeads() {
           </div>
         )}
       </div>
+
+      <EnrollModal
+        open={!!enrollingLead}
+        onClose={() => setEnrollingLead(null)}
+        prefillEmail={enrollingLead?.email || ''}
+        onEnrolled={() => updateStatus(enrollingLead.id, 'closed')}
+      />
     </div>
   )
 }
