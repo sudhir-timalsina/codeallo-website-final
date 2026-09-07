@@ -22,6 +22,10 @@ import Contact from './pages/Contact.jsx'
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx'
 import Terms from './pages/Terms.jsx'
 import NotFound from './pages/NotFound.jsx'
+import VerifyCertificate from './pages/VerifyCertificate.jsx'
+
+import LearnCourse from './pages/learn/LearnCourse.jsx'
+import LearnLesson from './pages/learn/LearnLesson.jsx'
 
 import Login from './pages/auth/Login.jsx'
 import Register from './pages/auth/Register.jsx'
@@ -30,6 +34,8 @@ import ForgotPassword from './pages/auth/ForgotPassword.jsx'
 // Code-split everything behind a login: none of this needs to be in the
 // bundle a first-time, logged-out visitor downloads.
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
+const LearnQuiz = lazy(() => import('./pages/learn/LearnQuiz.jsx'))
+const Certificate = lazy(() => import('./pages/Certificate.jsx'))
 const AdminLayout = lazy(() => import('./layouts/AdminLayout.jsx'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx'))
 const AdminCourses = lazy(() => import('./pages/admin/AdminCourses.jsx'))
@@ -53,6 +59,22 @@ export default function App() {
 
           <Route path="/courses" element={<CoursesIndex />} />
           <Route path="/courses/:slug" element={<CourseDetail />} />
+
+          {/* Free, public lesson content — see src/data/learnCourses.js */}
+          <Route path="/learn/:courseSlug" element={<LearnCourse />} />
+          <Route path="/learn/:courseSlug/lesson/:lessonSlug" element={<LearnLesson />} />
+          <Route
+            path="/learn/:courseSlug/quiz"
+            element={
+              <ProtectedRoute>
+                <LearnQuiz />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="/certificate/:certificateId" element={<Certificate />} />
+          <Route path="/verify" element={<VerifyCertificate />} />
+          <Route path="/verify/:certificateId" element={<VerifyCertificate />} />
 
           <Route path="/schools" element={<Schools />} />
           <Route path="/teachers" element={<Teachers />} />
