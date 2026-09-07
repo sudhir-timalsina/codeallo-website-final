@@ -4,6 +4,11 @@
 // facts that aren't true yet. Update `status` to 'open' per course once a
 // batch is actually scheduled, and this can migrate to the `courses` table
 // in Supabase (see supabase/schema.sql) once the CMS is in active use.
+//
+// `price` is honest placeholder text ("Contact for pricing") for the
+// paid/upcoming courses since no real price has been set yet — replace
+// each one with a real figure (e.g. "NPR 15,000" or "$120") once pricing
+// is decided. The 3 free courses correctly show "Free".
 
 export const courseCategories = [
   'Free & Certified',
@@ -21,6 +26,7 @@ export const courses = [
     level: 'Beginner',
     duration: '8 weeks',
     delivery: 'In-person & online',
+    price: 'Contact for pricing',
     status: 'upcoming',
     short: 'The logic and problem-solving foundation every other course builds on.',
     description:
@@ -39,6 +45,7 @@ export const courses = [
     level: 'Beginner to Intermediate',
     duration: '10 weeks',
     delivery: 'In-person & online',
+    price: 'Contact for pricing',
     status: 'upcoming',
     short: 'Practical Python for scripting, data work and a runway into AI and data science.',
     description:
@@ -57,6 +64,7 @@ export const courses = [
     level: 'Beginner to Intermediate',
     duration: '10 weeks',
     delivery: 'In-person & online',
+    price: 'Contact for pricing',
     status: 'upcoming',
     short: 'The language of the web — from browser basics to modern JavaScript.',
     description:
@@ -75,6 +83,7 @@ export const courses = [
     level: 'Intermediate',
     duration: '12 weeks',
     delivery: 'In-person & online',
+    price: 'Contact for pricing',
     status: 'upcoming',
     short: 'Full-stack web development — from a static page to a deployed, database-backed site.',
     description:
@@ -93,6 +102,7 @@ export const courses = [
     level: 'Intermediate',
     duration: '10 weeks',
     delivery: 'In-person & online',
+    price: 'Contact for pricing',
     status: 'upcoming',
     short: 'A grounded introduction to how AI systems actually work and where they fit.',
     description:
@@ -111,6 +121,7 @@ export const courses = [
     level: 'Intermediate to Advanced',
     duration: '12 weeks',
     delivery: 'In-person & online',
+    price: 'Contact for pricing',
     status: 'upcoming',
     short: 'From core ML concepts to training and evaluating your own models.',
     description:
@@ -129,6 +140,7 @@ export const courses = [
     level: 'Intermediate',
     duration: '10 weeks',
     delivery: 'In-person & online',
+    price: 'Contact for pricing',
     status: 'upcoming',
     short: 'Turning raw data into decisions — analysis, visualization and communication.',
     description:
@@ -147,6 +159,7 @@ export const courses = [
     level: 'Beginner to Intermediate',
     duration: '10 weeks',
     delivery: 'In-person & online',
+    price: 'Contact for pricing',
     status: 'upcoming',
     short: 'Practical security fundamentals for individuals and organizations.',
     description:
@@ -165,6 +178,7 @@ export const courses = [
     level: 'Beginner to Intermediate',
     duration: '8 weeks',
     delivery: 'In-person (hands-on)',
+    price: 'Contact for pricing',
     status: 'upcoming',
     short: 'Hands-on robotics for students — sensors, motors and control logic.',
     description:
@@ -183,6 +197,7 @@ export const courses = [
     level: 'Intermediate',
     duration: '8 weeks',
     delivery: 'In-person & online',
+    price: 'Contact for pricing',
     status: 'upcoming',
     short: 'Connecting physical devices to software — sensors, microcontrollers and data.',
     description:
@@ -198,11 +213,6 @@ export const courses = [
   // ---------------------------------------------------------------------
   // FREE, SELF-PACED COURSES
   // ---------------------------------------------------------------------
-  // Unlike the paid/upcoming courses above, these are live right now,
-  // free, fully public (no login needed to read the lessons), and end in
-  // an automatically-issued certificate. Full lesson + quiz content lives
-  // in src/data/learnCourses.js — `learnSlug` below links a catalog card
-  // to its actual lesson reader at /learn/:learnSlug.
   {
     slug: 'free-introduction-to-ai',
     learnSlug: 'introduction-to-ai',
@@ -211,6 +221,7 @@ export const courses = [
     level: 'Beginner',
     duration: '1 hour',
     delivery: 'Free, self-paced, online',
+    price: 'Free',
     status: 'open',
     isFree: true,
     hasCertificate: true,
@@ -232,6 +243,7 @@ export const courses = [
     level: 'Beginner',
     duration: '1 hour',
     delivery: 'Free, self-paced, online',
+    price: 'Free',
     status: 'open',
     isFree: true,
     hasCertificate: true,
@@ -253,6 +265,7 @@ export const courses = [
     level: 'Beginner',
     duration: '1 hour',
     delivery: 'Free, self-paced, online',
+    price: 'Free',
     status: 'open',
     isFree: true,
     hasCertificate: true,
