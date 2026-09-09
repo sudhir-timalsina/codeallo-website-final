@@ -8,15 +8,17 @@ export default function AdminProjects() {
     <AdminResourceTable
       table="projects"
       title="Projects"
-      emptyLabel="No projects in the database yet — the public /projects page currently reads from static data until you add rows here."
+      emptyLabel="No projects yet — add one, or set status to 'published' on an existing draft."
       fields={[
         { name: 'title', label: 'Title', required: true },
         { name: 'slug', label: 'Slug', required: true },
         { name: 'category', label: 'Category', as: 'select', options: categories, required: true },
         { name: 'client_type', label: 'Client type' },
         { name: 'technologies', label: 'Technologies (comma-separated)', isList: true },
-        { name: 'description', label: 'Short description', as: 'textarea', required: true },
-        { name: 'case_study', label: 'Full case study (problem / solution / result)', as: 'textarea' },
+        { name: 'description', label: 'Short description (shown on the project card)', as: 'textarea', required: true },
+        { name: 'problem', label: 'The problem', as: 'textarea', required: true },
+        { name: 'solution', label: 'The solution', as: 'textarea', required: true },
+        { name: 'result', label: 'The result', as: 'textarea', required: true },
         { name: 'status', label: 'Status', as: 'select', options: statuses, required: true },
       ]}
       columns={[
