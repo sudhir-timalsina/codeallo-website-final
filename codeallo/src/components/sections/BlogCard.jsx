@@ -1,10 +1,16 @@
 import { Link } from 'react-router-dom'
-import { getPostReadingTime } from '../../data/blogPosts.js'
 
 const formatDate = (dateStr) =>
   new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
+const readingTime = (content) => {
+  const words = (content || '').trim().split(/\s+/).filter(Boolean).length
+  return Math.max(1, Math.round(words / 200))
+}
+
 export default function BlogCard({ post, featured = false }) {
+  const displayDate = post.published_at || post.created_at
+
   return (
     <Link
       to={`/blog/${post.slug}`}
@@ -16,7 +22,7 @@ export default function BlogCard({ post, featured = false }) {
       </h3>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-graphite">{post.excerpt}</p>
       <p className="mt-4 text-xs text-ash">
-        {post.author} &middot; {formatDate(post.publishedAt)} &middot; {getPostReadingTime(post)} min read
+        {post.author} &middot; {formatDate(displayDate)} &middot; {readingTime(post.content)} min read
       </p>
     </Link>
   )
