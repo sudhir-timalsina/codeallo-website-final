@@ -1,15 +1,33 @@
+import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Clock, Award } from 'lucide-react'
 import Seo from '../../components/Seo.jsx'
 import Breadcrumbs from '../../components/ui/Breadcrumbs.jsx'
 import Button from '../../components/ui/Button.jsx'
 import NotFound from '../NotFound.jsx'
+import { useAuth } from '../../hooks/useAuth.jsx'
+import { supabase } from '../../lib/supabaseClient.js'
 import { getLearnCourseBySlug, getLessonBySlug } from '../../data/learnCourses.js'
 
 export default function LearnLesson() {
   const { courseSlug, lessonSlug } = useParams()
   const course = getLearnCourseBySlug(courseSlug)
   const lesson = course && getLessonBySlug(course, lessonSlug)
+  const { user } = useAuth()
+
+  // Mark this lesson as read for logged-in users. Anonymous readers can
+  // still read every lesson freely — they just don't get a progress bar,
+  // since there's nowhere to persist it without an account.
+  useEffect(() => {
+    if (!user || !course || !lesson) return
+    supabase
+      .from('lesson_progress')
+      .upsert(
+        { user_id: user.id, course_slug: course.slug, lesson_slug: lesson.slug },
+        { onConflict: 'user_id,course_slug,lesson_slug', ignoreDuplicates: true }
+      )
+      .then(() => {})
+  }, [user, course, lesson])
 
   if (!course || !lesson) return <NotFound />
 
