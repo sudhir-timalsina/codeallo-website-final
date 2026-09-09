@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Mail, Phone, MapPin } from 'lucide-react'
+import { Mail, Phone, MapPin, MessageCircle } from 'lucide-react'
 import Seo from '../components/Seo.jsx'
 import PageHero from '../components/sections/PageHero.jsx'
 import Breadcrumbs from '../components/ui/Breadcrumbs.jsx'
@@ -129,6 +129,17 @@ export default function Contact() {
                 <Phone size={16} className="mt-0.5 shrink-0 text-ash" />
                 <a href={siteConfig.contact.phoneHref} className="text-graphite hover:text-ink">
                   {siteConfig.contact.phone}
+                </a>
+              </li>
+              <li className="flex items-start gap-3">
+                <MessageCircle size={16} className="mt-0.5 shrink-0 text-ash" />
+                
+                  href={`${siteConfig.contact.whatsappHref}?text=${encodeURIComponent("Hi Codeallo, I'd like to ask about your courses/services.")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-graphite hover:text-ink"
+                >
+                  Chat on WhatsApp
                 </a>
               </li>
               <li className="flex items-start gap-3">
