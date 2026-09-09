@@ -19,6 +19,7 @@ import ProjectDetail from './pages/ProjectDetail.jsx'
 import Blog from './pages/Blog.jsx'
 import BlogPost from './pages/BlogPost.jsx'
 import Contact from './pages/Contact.jsx'
+import FAQ from './pages/FAQ.jsx'
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx'
 import Terms from './pages/Terms.jsx'
 import NotFound from './pages/NotFound.jsx'
@@ -86,6 +87,7 @@ export default function App() {
           <Route path="/blog/:slug" element={<BlogPost />} />
 
           <Route path="/contact" element={<Contact />} />
+          <Route path="/faq" element={<FAQ />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<Terms />} />
 
