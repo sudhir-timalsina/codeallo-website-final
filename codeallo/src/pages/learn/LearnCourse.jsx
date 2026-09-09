@@ -1,19 +1,49 @@
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { CheckCircle2, Clock, Award, ArrowRight } from 'lucide-react'
+import { CheckCircle2, Circle, Clock, Award, ArrowRight } from 'lucide-react'
 import Seo from '../../components/Seo.jsx'
 import PageHero from '../../components/sections/PageHero.jsx'
 import Breadcrumbs from '../../components/ui/Breadcrumbs.jsx'
 import Button from '../../components/ui/Button.jsx'
 import NotFound from '../NotFound.jsx'
+import { useAuth } from '../../hooks/useAuth.jsx'
+import { supabase } from '../../lib/supabaseClient.js'
 import { getLearnCourseBySlug, getTotalLessonMinutes } from '../../data/learnCourses.js'
 
 export default function LearnCourse() {
   const { courseSlug } = useParams()
   const course = getLearnCourseBySlug(courseSlug)
+  const { user } = useAuth()
+  const [completedSlugs, setCompletedSlugs] = useState(null) // null = not loaded / not logged in
+
+  useEffect(() => {
+    if (!user || !course) {
+      setCompletedSlugs(null)
+      return
+    }
+    let mounted = true
+    supabase
+      .from('lesson_progress')
+      .select('lesson_slug')
+      .eq('user_id', user.id)
+      .eq('course_slug', course.slug)
+      .then(({ data }) => {
+        if (mounted) setCompletedSlugs((data || []).map((r) => r.lesson_slug))
+      })
+    return () => {
+      mounted = false
+    }
+  }, [user, course])
 
   if (!course) return <NotFound />
 
   const totalMinutes = getTotalLessonMinutes(course)
+  const hasProgress = Array.isArray(completedSlugs)
+  const completedCount = hasProgress ? completedSlugs.length : 0
+  const percent = hasProgress ? Math.round((completedCount / course.lessons.length) * 100) : 0
+  const nextLesson = hasProgress
+    ? course.lessons.find((l) => !completedSlugs.includes(l.slug)) || null
+    : null
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -38,6 +68,25 @@ export default function LearnCourse() {
 
       <section className="content-wrap grid gap-16 py-16 sm:py-24 lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-7">
+          {hasProgress && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-graphite">
+                  {completedCount} of {course.lessons.length} lessons read
+                </span>
+                <span className="text-ash">{percent}%</span>
+              </div>
+              <div className="mt-2 h-1.5 w-full bg-bone">
+                <div className="h-1.5 bg-ink transition-all" style={{ width: `${percent}%` }} />
+              </div>
+              {nextLesson && (
+                <Button to={`/learn/${course.slug}/lesson/${nextLesson.slug}`} size="sm" className="mt-4">
+                  {completedCount === 0 ? 'Start Reading' : 'Continue Where You Left Off'}
+                </Button>
+              )}
+            </div>
+          )}
+
           <h2 className="font-display text-2xl text-ink">Lessons</h2>
           <p className="mt-2 text-sm text-graphite">
             Read them in order, or jump to any lesson — there&rsquo;s no login
@@ -45,22 +94,33 @@ export default function LearnCourse() {
           </p>
 
           <ol className="mt-6 divide-y divide-line border-y border-line">
-            {course.lessons.map((lesson, index) => (
-              <li key={lesson.slug}>
-                <Link
-                  to={`/learn/${course.slug}/lesson/${lesson.slug}`}
-                  className="group flex items-center justify-between gap-4 py-4 hover:bg-bone/40"
-                >
-                  <span className="flex items-center gap-4">
-                    <span className="font-display text-lg text-ash">{String(index + 1).padStart(2, '0')}</span>
-                    <span className="text-base text-ink">{lesson.title}</span>
-                  </span>
-                  <span className="flex shrink-0 items-center gap-1.5 text-xs text-ash">
-                    <Clock size={13} /> {lesson.minutes} min
-                  </span>
-                </Link>
-              </li>
-            ))}
+            {course.lessons.map((lesson, index) => {
+              const isDone = hasProgress && completedSlugs.includes(lesson.slug)
+              return (
+                <li key={lesson.slug}>
+                  <Link
+                    to={`/learn/${course.slug}/lesson/${lesson.slug}`}
+                    className="group flex items-center justify-between gap-4 py-4 hover:bg-bone/40"
+                  >
+                    <span className="flex items-center gap-4">
+                      {hasProgress ? (
+                        isDone ? (
+                          <CheckCircle2 size={18} className="shrink-0 text-ink" aria-label="Read" />
+                        ) : (
+                          <Circle size={18} className="shrink-0 text-line" aria-hidden="true" />
+                        )
+                      ) : (
+                        <span className="font-display text-lg text-ash">{String(index + 1).padStart(2, '0')}</span>
+                      )}
+                      <span className="text-base text-ink">{lesson.title}</span>
+                    </span>
+                    <span className="flex shrink-0 items-center gap-1.5 text-xs text-ash">
+                      <Clock size={13} /> {lesson.minutes} min
+                    </span>
+                  </Link>
+                </li>
+              )
+            })}
           </ol>
 
           <div className="mt-8 border border-ink bg-bone/50 p-6">
