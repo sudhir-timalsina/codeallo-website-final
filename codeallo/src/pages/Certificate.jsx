@@ -7,6 +7,18 @@ import LoadingState from '../components/ui/LoadingState.jsx'
 import CertificateDisplay from '../components/certificate/CertificateDisplay.jsx'
 import { useAuth } from '../hooks/useAuth.jsx'
 import { supabase } from '../lib/supabaseClient.js'
+import { siteConfig } from '../lib/siteConfig.js'
+import { buildLinkedInAddCertUrl } from '../utils/linkedin.js'
+
+// lucide-react dropped brand/logo icons in recent versions, so the
+// LinkedIn mark is a small inline SVG here rather than an import.
+function LinkedInIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width={15} height={15} aria-hidden="true" {...props}>
+      <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.45-2.14 2.94v5.66H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45z" />
+    </svg>
+  )
+}
 
 export default function Certificate() {
   const { certificateId } = useParams()
@@ -69,15 +81,28 @@ export default function Certificate() {
     )
   }
 
+  const verifyUrl = `${siteConfig.url}/verify/${certificate.id}`
+  const linkedInUrl = buildLinkedInAddCertUrl({
+    courseTitle: certificate.course_title,
+    certificateId: certificate.id,
+    issuedAt: certificate.issued_at,
+    verifyUrl,
+  })
+
   return (
     <>
       <Seo title={`Certificate — ${certificate.course_title}`} path={`/certificate/${certificate.id}`} />
       <div className="content-wrap py-12 sm:py-16">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 print:hidden">
           <Link to="/dashboard" className="text-sm text-graphite hover:text-ink">&larr; Back to dashboard</Link>
-          <Button onClick={() => window.print()} size="sm">
-            <Printer size={15} /> Print / Save as PDF
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <Button href={linkedInUrl} target="_blank" rel="noreferrer" variant="secondary" size="sm">
+              <LinkedInIcon /> Add to LinkedIn Profile
+            </Button>
+            <Button onClick={() => window.print()} size="sm">
+              <Printer size={15} /> Print / Save as PDF
+            </Button>
+          </div>
         </div>
 
         <CertificateDisplay
@@ -88,6 +113,12 @@ export default function Certificate() {
           issuedAt={certificate.issued_at}
           scorePercent={certificate.score_percent}
         />
+
+        <p className="mt-6 text-center text-xs text-ash print:hidden">
+          This opens LinkedIn&rsquo;s official &ldquo;Add certification&rdquo; form, pre-filled
+          with your course, Codeallo as the issuing organization, and a link
+          back to this certificate&rsquo;s verification page.
+        </p>
       </div>
     </>
   )
