@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Award } from 'lucide-react'
+import { Award, BookOpen } from 'lucide-react'
 import Seo from '../components/Seo.jsx'
 import Button from '../components/ui/Button.jsx'
 import LoadingState from '../components/ui/LoadingState.jsx'
@@ -8,17 +8,19 @@ import EmptyState from '../components/ui/EmptyState.jsx'
 import { useAuth } from '../hooks/useAuth.jsx'
 import { supabase } from '../lib/supabaseClient.js'
 import { getCourseBySlug } from '../data/courses.js'
+import { getLearnCourseBySlug } from '../data/learnCourses.js'
 
 export default function Dashboard() {
   const { user, profile, signOut } = useAuth()
   const [enrollments, setEnrollments] = useState([])
   const [certificates, setCertificates] = useState([])
+  const [inProgress, setInProgress] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let mounted = true
     async function loadData() {
-      const [enrollmentsRes, certificatesRes] = await Promise.all([
+      const [enrollmentsRes, certificatesRes, progressRes] = await Promise.all([
         supabase
           .from('enrollments')
           .select('id, status, created_at, course_slug')
@@ -29,10 +31,34 @@ export default function Dashboard() {
           .select('*')
           .eq('user_id', user.id)
           .order('issued_at', { ascending: false }),
+        supabase
+          .from('lesson_progress')
+          .select('course_slug, lesson_slug')
+          .eq('user_id', user.id),
       ])
+
       if (mounted) {
+        const certifiedSlugs = new Set((certificatesRes.data || []).map((c) => c.course_slug))
+
+        // Group progress rows by course, then keep only courses that are
+        // partially (not fully) read and don't already have a certificate.
+        const byCourse = {}
+        for (const row of progressRes.data || []) {
+          byCourse[row.course_slug] = (byCourse[row.course_slug] || 0) + 1
+        }
+        const inProgressCourses = Object.entries(byCourse)
+          .map(([slug, count]) => {
+            const course = getLearnCourseBySlug(slug)
+            if (!course) return null
+            return { slug, title: course.title, completed: count, total: course.lessons.length }
+          })
+          .filter(
+            (c) => c && !certifiedSlugs.has(c.slug) && c.completed > 0 && c.completed < c.total
+          )
+
         setEnrollments(enrollmentsRes.data || [])
         setCertificates(certificatesRes.data || [])
+        setInProgress(inProgressCourses)
         setLoading(false)
       }
     }
@@ -60,6 +86,39 @@ export default function Dashboard() {
 
         <div className="mt-12 grid gap-12 lg:grid-cols-12">
           <div className="space-y-12 lg:col-span-8">
+            {!loading && inProgress.length > 0 && (
+              <div>
+                <h2 className="font-display text-xl text-ink">Continue learning</h2>
+                <ul className="mt-5 space-y-4">
+                  {inProgress.map((c) => {
+                    const percent = Math.round((c.completed / c.total) * 100)
+                    return (
+                      <li key={c.slug} className="border border-line p-4">
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="flex items-center gap-2 text-graphite">
+                            <BookOpen size={15} className="text-ash" />
+                            {c.title}
+                          </span>
+                          <Link
+                            to={`/learn/${c.slug}`}
+                            className="shrink-0 text-sm text-ink underline underline-offset-4"
+                          >
+                            Continue
+                          </Link>
+                        </div>
+                        <div className="mt-3 h-1.5 w-full bg-bone">
+                          <div className="h-1.5 bg-ink" style={{ width: `${percent}%` }} />
+                        </div>
+                        <p className="mt-1.5 text-xs text-ash">
+                          {c.completed} of {c.total} lessons &middot; {percent}%
+                        </p>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            )}
+
             <div>
               <h2 className="font-display text-xl text-ink">Your certificates</h2>
               <div className="mt-5">
