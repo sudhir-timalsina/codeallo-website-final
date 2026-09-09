@@ -1,38 +1,85 @@
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Seo from '../components/Seo.jsx'
 import Breadcrumbs from '../components/ui/Breadcrumbs.jsx'
 import Badge from '../components/ui/Badge.jsx'
 import BlogCard from '../components/sections/BlogCard.jsx'
 import CTASection from '../components/sections/CTASection.jsx'
+import LoadingState from '../components/ui/LoadingState.jsx'
 import NotFound from './NotFound.jsx'
-import { getPostBySlug, getPostReadingTime, blogPosts } from '../data/blogPosts.js'
+import { supabase } from '../lib/supabaseClient.js'
 import { siteConfig } from '../lib/siteConfig.js'
 
 const formatDate = (dateStr) =>
   new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
+const readingTime = (content) => {
+  const words = (content || '').trim().split(/\s+/).filter(Boolean).length
+  return Math.max(1, Math.round(words / 200))
+}
+
 export default function BlogPost() {
   const { slug } = useParams()
-  const post = getPostBySlug(slug)
+  const [post, setPost] = useState(undefined) // undefined = loading, null = not found
+  const [related, setRelated] = useState([])
 
-  if (!post) return <NotFound />
+  useEffect(() => {
+    let mounted = true
+    setPost(undefined)
 
-  const related = blogPosts.filter((p) => p.category === post.category && p.slug !== post.slug).slice(0, 2)
+    supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('slug', slug)
+      .eq('status', 'published')
+      .maybeSingle()
+      .then(async ({ data }) => {
+        if (!mounted) return
+        setPost(data || null)
+
+        if (data) {
+          const { data: relatedData } = await supabase
+            .from('blog_posts')
+            .select('*')
+            .eq('status', 'published')
+            .eq('category', data.category)
+            .neq('slug', data.slug)
+            .limit(2)
+          if (mounted) setRelated(relatedData || [])
+        }
+      })
+
+    return () => {
+      mounted = false
+    }
+  }, [slug])
+
+  if (post === undefined) return <LoadingState label="Loading article" />
+  if (post === null) return <NotFound />
+
+  const paragraphs = post.content.split(/\n\n+/)
+  const displayDate = post.published_at || post.created_at
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: post.title,
-    description: post.seoDescription,
+    description: post.seo_description || post.excerpt,
     author: { '@type': 'Organization', name: post.author },
-    datePublished: post.publishedAt,
+    datePublished: displayDate,
     publisher: { '@type': 'Organization', name: siteConfig.legalName },
     mainEntityOfPage: `${siteConfig.url}/blog/${post.slug}`,
   }
 
   return (
     <>
-      <Seo title={post.title} description={post.seoDescription} path={`/blog/${post.slug}`} type="article" jsonLd={jsonLd} />
+      <Seo
+        title={post.seo_title || post.title}
+        description={post.seo_description || post.excerpt}
+        path={`/blog/${post.slug}`}
+        type="article"
+        jsonLd={jsonLd}
+      />
 
       <article>
         <header className="border-b border-line bg-ink text-paper">
@@ -42,7 +89,7 @@ export default function BlogPost() {
               {post.title}
             </h1>
             <p className="mt-6 text-sm text-paper/60">
-              {post.author} &middot; {formatDate(post.publishedAt)} &middot; {getPostReadingTime(post)} min read
+              {post.author} &middot; {formatDate(displayDate)} &middot; {readingTime(post.content)} min read
             </p>
           </div>
         </header>
@@ -57,17 +104,19 @@ export default function BlogPost() {
 
         <div className="content-wrap grid gap-16 py-16 sm:py-24 lg:grid-cols-12 lg:gap-12">
           <div className="max-w-2xl space-y-6 lg:col-span-8">
-            {post.body.map((paragraph, i) => (
+            {paragraphs.map((paragraph, i) => (
               <p key={i} className="text-lg leading-relaxed text-graphite">
                 {paragraph}
               </p>
             ))}
 
-            <div className="flex flex-wrap gap-2 border-t border-line pt-8">
-              {post.tags.map((tag) => (
-                <Badge key={tag}>{tag}</Badge>
-              ))}
-            </div>
+            {(post.tags || []).length > 0 && (
+              <div className="flex flex-wrap gap-2 border-t border-line pt-8">
+                {post.tags.map((tag) => (
+                  <Badge key={tag}>{tag}</Badge>
+                ))}
+              </div>
+            )}
           </div>
 
           {related.length > 0 && (
