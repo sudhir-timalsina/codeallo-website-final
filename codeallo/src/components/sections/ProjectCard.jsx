@@ -12,7 +12,7 @@ export default function ProjectCard({ project }) {
       <div className="p-6">
         <p className="mb-2 text-xs uppercase tracking-[0.1em] text-ash">{project.category}</p>
         <h3 className="font-display text-xl text-ink">{project.title}</h3>
-        <p className="mt-2 text-sm leading-relaxed text-graphite">{project.short}</p>
+        <p className="mt-2 text-sm leading-relaxed text-graphite">{project.description}</p>
         <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-ink">
           Read the case study
           <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
