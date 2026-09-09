@@ -21,6 +21,7 @@ export const navGroups = [
     items: [
       { label: 'Projects', to: '/projects' },
       { label: 'Blog', to: '/blog' },
+      { label: 'FAQ', to: '/faq' },
       { label: 'About', to: '/about' },
     ],
   },
@@ -50,6 +51,7 @@ export const footerColumns = [
       { label: 'About', to: '/about' },
       { label: 'Projects', to: '/projects' },
       { label: 'Blog', to: '/blog' },
+      { label: 'FAQ', to: '/faq' },
       { label: 'Contact', to: '/contact' },
     ],
   },
